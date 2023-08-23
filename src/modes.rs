@@ -1,9 +1,19 @@
-#[derive(Debug, Eq, PartialEq)]
+use std::ops::Index;
+
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub enum Mode {
-    Numeric,
-    AlphaNumeric,
-    Byte,
-    Kanji // For completeness, unnecessary?
+    Numeric = 0,
+    AlphaNumeric = 1,
+    Byte = 2,
+    Kanji = 3 // For completeness, unnecessary?
+}
+
+impl Index<Mode> for [u16; 4] {
+    type Output = u16;
+
+    fn index(&self, ec: Mode) -> &Self::Output {
+        &self[ec as usize]
+    }
 }
 
 pub fn analyze_mode(s: String) -> Mode {

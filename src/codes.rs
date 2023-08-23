@@ -1,17 +1,24 @@
-use std::error::Error;
+use std::{error::Error, ops::Index};
 
 
 // The level of Reed-Soloman error correction used in the code.
 // Note: a higher error correction requires more bits, thus 
 // resulting in a smaller amount of possible encoded data.
 #[derive(Debug)]
-enum ErrorCorrectionLevel {
-    L, // 7%
-    M, // 15%
-    Q, // 25%
-    H // 30%
+pub enum ErrorCorrectionLevel {
+    L = 0, // 7%
+    M = 1, // 15%
+    Q = 2, // 25%
+    H = 3 // 30%
 }
 
+impl Index<ErrorCorrectionLevel> for [[[u16; 4]; 40]; 4] {
+    type Output = [[u16; 4]; 40];
+
+    fn index(&self, ec: ErrorCorrectionLevel) -> &Self::Output {
+        &self[ec as usize]
+    }
+}
 
 // Object that contains necessary information about QR codes.
 #[derive(Debug)]
