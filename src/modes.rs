@@ -1,11 +1,15 @@
-use std::ops::Index;
+use std::{ops::Index, fmt};
+use bitvec::prelude::*;
+
+use crate::results::{ModeResult, ModeError};
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub enum Mode {
     Numeric = 0,
     AlphaNumeric = 1,
     Byte = 2,
-    Kanji = 3 // For completeness, unnecessary?
+    Kanji = 3, // For completeness, unnecessary?
+    ECI = 4, // For multiple QR codes chained together, not used rn
 }
 
 impl Index<Mode> for [u16; 4] {
@@ -28,6 +32,74 @@ pub fn analyze_mode(s: String) -> Mode {
     // Kanji mode can be implemented at a later date
 }
 
+// TODO: Change return type to Result<BitVec, Error>
+pub fn get_mode_indicator(m: Mode) -> ModeResult<BitVec> {
+    match m {
+        Mode::Numeric => Ok(bitvec![0, 0, 0, 1]),
+        Mode::AlphaNumeric => Ok(bitvec![0, 0, 1, 0]),
+        Mode::Byte => Ok(bitvec![0, 1, 0, 0]), 
+        Mode::Kanji => Ok(bitvec![1, 0, 0, 0]),
+        Mode::ECI => Ok(bitvec![0, 1, 1, 1]),
+        _ => Err(ModeError)
+    }
+}
+
+pub fn get_mode_charcountlen(version: u16, m: Mode) -> ModeResult<u16> {
+    // Returns number of bits the charcount bitstring must be based on the version
+    // and the mode.
+    // TODO: Make this better somehow.
+    match m {
+        Mode::AlphaNumeric => {
+            if 1 <= version && version <= 9 {
+                Ok(9)
+            } else if 10 <= version && version <= 26 {
+                Ok(11)
+            } else if 27 <= version && version <= 40 {
+                Ok(13)
+            } else {
+                Err(ModeError)
+            }
+        },
+        Mode::Numeric => {
+            if 1 <= version && version <= 9 {
+                Ok(10)
+            } else if 10 <= version && version <= 26 {
+                Ok(12)
+            } else if 27 <= version && version <= 40 {
+                Ok(14)
+            } else {
+                Err(ModeError)
+            }
+        },
+        Mode::Byte => {
+            if 1 <= version && version <= 9 {
+                Ok(8)
+            } else if 10 <= version && version <= 26 {
+                Ok(16)
+            } else if 27 <= version && version <= 40 {
+                Ok(16)
+            } else {
+                Err(ModeError)
+            }
+        },
+        Mode::Kanji => {
+            if 1 <= version && version <= 9 {
+                Ok(8)
+            } else if 10 <= version && version <= 26 {
+                Ok(10)
+            } else if 27 <= version && version <= 40 {
+                Ok(12)
+            } else {
+                Err(ModeError)
+            }
+        },
+        Mode::ECI => {
+            // not implemented yet
+            Err(ModeError)
+        }
+        _ => Err(ModeError)
+    }
+}
 // Not using built in char functions because they are too wide ranging
 // for encoding purposes.
 

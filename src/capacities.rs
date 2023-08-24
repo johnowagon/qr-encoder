@@ -1,17 +1,13 @@
 
 // Character capacities of QR codes based on Version, Mode, and Reed-Solomon level
 
-use std::convert::TryInto;
-
-use crate::{codes::ErrorCorrectionLevel, modes::{Mode, analyze_mode}};
-
 // Order of lowest subarry goes as following:
 // Numeric, AlphaNumeric, Byte, Kanji
 // Highest array is ordered as such:
 // [L, M, Q, H]
 // Middle Array is ordered as such:
 // [v1, v2, ..., v40]
-static CHAR_CAPS: [[[u16; 4]; 40]; 4] = [
+pub static CHAR_CAPS: [[[u16; 4]; 40]; 4] = [
     [
         [41,25,17,10],
         [77,47,32,20],
@@ -181,21 +177,3 @@ static CHAR_CAPS: [[[u16; 4]; 40]; 4] = [
         [3057,1852,1273,784],
     ]
 ];
-
-// TODO: improve this by using custom iterators?
-pub fn smallest_cap(ec: ErrorCorrectionLevel, s: String) -> (u16, u16) {
-    // Gets the version and smallest capacity for a given string.
-    let target: u16 = s.len().try_into().unwrap();
-    let mode: Mode = analyze_mode(s);
-    let mut found: u16 = 0;
-    let mut v: u16 = 1;
-    for list in CHAR_CAPS[ec] {
-        if list[mode] >= target {
-            found = list[mode];
-            break;
-        }
-        v += 1;
-    }
-
-    (v, found)
-}
