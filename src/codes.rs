@@ -1,5 +1,5 @@
 use std::{ops::Index};
-use crate::{modes::{Mode, analyze_mode, get_mode_indicator, get_mode_charcountlen}, consts, bit_helpers::to_bitvec};
+use crate::{modes::{Mode, analyze_mode, get_mode_indicator, get_mode_charcountlen}, consts, bit_helpers::{to_bitvec, pad_to_size}};
 use bitvec::prelude::*;
 
 // The level of Reed-Soloman error correction used in the code.
@@ -81,12 +81,7 @@ impl QRCode {
     pub fn append_charcount(&mut self) {
         let charc_len: u16 = get_mode_charcountlen(self.version, self.mode).unwrap();
         let mut count: BitVec = to_bitvec(self.char_count);
-        let mut cc_bv: BitVec = BitVec::new();
-        for _ in 0..(charc_len - count.len() as u16) {
-            cc_bv.push(false); // Pad bitvec with necessary zeroes
-        }
-        // kind of weird
-        cc_bv.append(&mut count);
-        self.bitfield.append(&mut cc_bv);
+        pad_to_size(&mut count, charc_len);
+        self.bitfield.append(&mut count);
     }
 }
