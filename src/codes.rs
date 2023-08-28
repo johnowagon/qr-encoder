@@ -1,5 +1,5 @@
 use std::{ops::Index};
-use crate::{modes::{Mode, analyze_mode, get_mode_indicator, get_mode_charcountlen}, capacities, bit_helpers::to_bitvec};
+use crate::{modes::{Mode, analyze_mode, get_mode_indicator, get_mode_charcountlen}, consts, bit_helpers::to_bitvec};
 use bitvec::prelude::*;
 
 // The level of Reed-Soloman error correction used in the code.
@@ -41,7 +41,7 @@ pub fn smallest_cap(ec: ErrorCorrectionLevel, s: String) -> (u16, u16) {
     let mode: Mode = analyze_mode(s);
     let mut found: u16 = 0;
     let mut v: u16 = 1; // version should start at 1
-    for list in capacities::CHAR_CAPS[ec] {
+    for list in consts::CHAR_CAPS[ec] {
         if list[mode] >= target {
             found = list[mode];
             break;
@@ -69,6 +69,7 @@ impl QRCode {
 
         code.append_modebits();
         code.append_charcount();
+        code.bitfield.append(&mut code.mode.encode(code.data));
 
         code
     }

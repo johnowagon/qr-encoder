@@ -1,7 +1,14 @@
 use std::{ops::Index, fmt};
 use bitvec::prelude::*;
 
-use crate::results::{ModeResult, ModeError};
+use crate::{
+    results::{
+        ModeResult, ModeError
+    }, 
+    encoding::{
+        alphanumeric_encoding, numeric_encoding, byte_encoding, kanji_encoding
+    }
+};
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub enum Mode {
@@ -10,6 +17,20 @@ pub enum Mode {
     Byte = 2,
     Kanji = 3, // For completeness, unnecessary?
     ECI = 4, // For multiple QR codes chained together, not used rn
+}
+
+// Different encoding algorithms for specific mode types.
+
+impl Mode {
+    pub fn encode(&self, s: String) -> BitVec {
+        match self {
+            Mode::AlphaNumeric => alphanumeric_encoding(s),
+            Mode::Numeric => numeric_encoding(s),
+            Mode::Byte => byte_encoding(s),
+            Mode::Kanji => kanji_encoding(s),
+            Mode::ECI => BitVec::new() // not supported yet
+        }
+    }
 }
 
 impl Index<Mode> for [u16; 4] {
