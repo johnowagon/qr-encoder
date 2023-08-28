@@ -1,3 +1,5 @@
+use std::convert::TryInto;
+
 use bitvec::vec::BitVec;
 
 
@@ -14,4 +16,16 @@ pub fn to_bitvec(n: u16) -> BitVec {
     }
 
     ret_vec
+}
+
+pub fn pad_to_size(v: &mut BitVec, size: u16) {
+    // Pads a bitvec with 0s to the specified size in place
+    let cur_size: u16 = v.len().try_into().unwrap();
+    if size == cur_size {
+        return;
+    }
+
+    for _ in 0..(size - cur_size) {
+        v.insert(0, false);
+    }
 }

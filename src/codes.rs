@@ -69,7 +69,7 @@ impl QRCode {
 
         code.append_modebits();
         code.append_charcount();
-        code.bitfield.append(&mut code.mode.encode(code.data));
+        // code.bitfield.append(&mut code.mode.encode(code.data));
 
         code
     }

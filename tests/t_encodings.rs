@@ -7,7 +7,7 @@ mod tests {
     use bitvec::prelude::*;
 
     #[test]
-    fn determine_cap1() {
+    fn encode1() {
         let res: String = String::from("HELLO WORLD");
         assert_eq!(alphanumeric_encoding(res), 
             bitvec![0,1,1,0,0,0,0,1,0,1,1,0,1,1,1,1,0,0,0,1,1,0,1,0,
