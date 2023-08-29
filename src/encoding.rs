@@ -7,8 +7,74 @@ use crate::{consts::from_alphanum_table, bit_helpers::{pad_to_size, to_bitvec}};
 // The major concession amde with these encoding algorithms is that they currently only support ASCII text.
 // TODO: make this more general to accept different types of text?
 
+// Enum to make numeric encoding easier
+enum NumDigits {
+    ThreeDigit,
+    TwoDigit,
+    OneDigit
+}
+
 pub fn numeric_encoding(s: String) -> BitVec {
-    todo!();
+    // if leading zero, act as twodigit
+    // if double leading zero, act as onedigit,
+    // if 3 zeroes in a row => ??? maybe just represent it as 10 zeroes?
+    //fn interpret_triple(s: STR) -> Enum(threedigit, twodigit, onedigit)
+    let mut result: BitVec = BitVec::new();
+    let data_len = s.len();
+    
+    fn interpret_triple(s: String) -> NumDigits {
+        println!("{s}");
+        let mut len = 0; 
+        let mut leading = 0;
+        for (i, c) in s.chars().enumerate() {
+            if c != '0' && i == 0 {
+                // If there are no leading zeroes
+                return NumDigits::ThreeDigit;
+            }
+            if c == '0' {
+                leading += 1;
+            }
+            len += 1;
+        }
+        if len == leading {
+            match len {
+                1 => NumDigits::OneDigit,
+                2 => NumDigits::TwoDigit,
+                3 => NumDigits::ThreeDigit,
+                _ => todo!() // how to handle default cases?
+            }
+        } else {
+            match leading {
+                1 => NumDigits::TwoDigit,
+                2 => NumDigits::OneDigit,
+                3 => NumDigits::ThreeDigit,
+                _ => todo!()
+            }
+        }
+    }
+
+    for i in (0..data_len).step_by(3) {
+        let numlen: NumDigits;
+        if i+3 > data_len {
+            numlen = interpret_triple(String::from(&s[i..]));
+        } else {
+            numlen = interpret_triple(String::from(&s[i..i+3]));
+        }
+        match numlen {
+            // convert string into int
+            NumDigits::OneDigit => {
+                println!("ONE DIGIT");
+            },
+            NumDigits::TwoDigit => { 
+                println!("TWO");
+            },
+            NumDigits::ThreeDigit => {
+                println!("THREE");
+            }
+        }
+    }
+
+    result
 }
 
 pub fn alphanumeric_encoding(s: String) -> BitVec {
