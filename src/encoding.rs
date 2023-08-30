@@ -6,6 +6,9 @@ use crate::{consts::from_alphanum_table, bit_helpers::{pad_to_size, to_bitvec}};
 
 // The major concession amde with these encoding algorithms is that they currently only support ASCII text.
 // TODO: make this more general to accept different types of text?
+// TODO cont. : Make the input data more generalized by creating a custom struct
+// This may be beneficial for encoding to allow for custom iterators?
+// may be beneficial for easier polymorphism as well. 
 
 // Enum to make numeric encoding easier
 enum NumDigits {
@@ -15,10 +18,7 @@ enum NumDigits {
 }
 
 pub fn numeric_encoding(s: String) -> BitVec {
-    // if leading zero, act as twodigit
-    // if double leading zero, act as onedigit,
-    // if 3 zeroes in a row => ??? maybe just represent it as 10 zeroes?
-    //fn interpret_triple(s: STR) -> Enum(threedigit, twodigit, onedigit)
+    // Info about numeric encoding can be found here: https://www.thonky.com/qr-code-tutorial/numeric-mode-encoding
     let mut result: BitVec = BitVec::new();
     let data_len = s.len();
     
